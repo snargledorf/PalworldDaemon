@@ -14,7 +14,12 @@ internal class PalworldRconConnection(int port, string password, ILogger<Palworl
         cancellationToken.ThrowIfCancellationRequested();
 
         logger.LogDebug("Broadcast: {message}", message);
-        await SendCommandAsync($"broadcast {message.Replace(" ", "")}").ConfigureAwait(false);
+        await SendCommandAsync($"broadcast {ReplaceSpacesToPreventCutoff(message)}").ConfigureAwait(false);
+    }
+
+    private static string ReplaceSpacesToPreventCutoff(string message)
+    {
+        return message.Replace(" ", "_");
     }
 
     public async Task ShutdownAsync(TimeSpan shutdownInTimeSpan, string message, CancellationToken cancellationToken = default)
@@ -24,7 +29,7 @@ internal class PalworldRconConnection(int port, string password, ILogger<Palworl
         cancellationToken.ThrowIfCancellationRequested();
         
         logger.LogDebug("Shutdown in {shutdownInTimeSpan}: {message}", shutdownInTimeSpan, message);
-        await SendCommandAsync($"shutdown {shutdownInTimeSpan.TotalSeconds} {message.Replace(" ", "")}").ConfigureAwait(false); // Palworld doesn't support spaces in broadcasts?
+        await SendCommandAsync($"shutdown {shutdownInTimeSpan.TotalSeconds} {ReplaceSpacesToPreventCutoff(message)}").ConfigureAwait(false); // Palworld doesn't support spaces in broadcasts?
     }
 
     private async Task SendCommandAsync(string commandText)
