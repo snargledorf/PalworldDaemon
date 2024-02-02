@@ -4,43 +4,35 @@ namespace PalworldDaemon;
 
 class PalworldServerExecutable(ILogger<PalworldServerExecutable> logger, string palworldServerExePath) : IPalworldServerExecutable
 {
-    public async Task RunAsync(CancellationToken cancellationToken = default)
+    public void EnsureRunning()
     {
-        Process? serverProcess = Process.GetProcessesByName("PalServer-Win64-Test-Cmd").FirstOrDefault();
-        if (serverProcess is null)
-        {
-            logger.LogInformation("Starting a new server process");
-            serverProcess = new Process();
-
-            var processStartInfo = new ProcessStartInfo(palworldServerExePath)
-            {
-                CreateNoWindow = true,
-                UseShellExecute = false
-            };
-
-            serverProcess.StartInfo = processStartInfo;
-
-            logger.LogDebug("Starting Palworld server process");
-            bool startedNew = serverProcess.Start();
-            logger.LogDebug("Started new process: {newProcess}", startedNew);
-        }
-        else
-        {
-            logger.LogInformation("Found an existing server process");
-        }
-
-        logger.LogDebug("Waiting for server process to exit");
-        await WaitForExitAsync(serverProcess, cancellationToken).ConfigureAwait(false);
-        logger.LogDebug("Server process exited");
+        if (TryGetPalServerProcess(out _))
+            return;
+        
+        logger.LogInformation("Starting a new server process");
+        StartPalServerProcess();
     }
 
-    public Task WaitForExitAsync(CancellationToken cancellationToken = default)
+    public bool TryGetPalServerProcess(out Process? process)
     {
-        return WaitForExitAsync(Process.GetProcessesByName("PalServer-Win64-Test-Cmd").FirstOrDefault(), cancellationToken);
+        process = Process.GetProcessesByName("PalServer").FirstOrDefault();
+        return process is not null;
     }
 
-    private static Task WaitForExitAsync(Process? process, CancellationToken cancellationToken)
+    private void StartPalServerProcess()
     {
-        return process?.WaitForExitAsync(cancellationToken) ?? Task.CompletedTask;
+        var serverProcess = new Process();
+
+        var processStartInfo = new ProcessStartInfo(palworldServerExePath)
+        {
+            CreateNoWindow = true,
+            UseShellExecute = false
+        };
+
+        serverProcess.StartInfo = processStartInfo;
+
+        logger.LogDebug("Starting Palworld server process");
+        bool startedNew = serverProcess.Start();
+        logger.LogDebug("Started new process: {newProcess}", startedNew);
     }
 }
