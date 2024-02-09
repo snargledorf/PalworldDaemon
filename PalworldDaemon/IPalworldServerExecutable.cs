@@ -2,7 +2,7 @@
 
 namespace PalworldDaemon;
 
-internal interface IPalworldServerExecutable
+public interface IPalworldServerExecutable
 {
     void EnsureRunning();
     bool TryGetPalServerProcess(out Process? process);
