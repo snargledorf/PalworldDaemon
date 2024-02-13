@@ -14,11 +14,13 @@ if (string.IsNullOrWhiteSpace(adminPassword))
     throw new InvalidOperationException("AdminPassword is required");
 
 var palworldServerExePath = builder.Configuration.GetValue<string>("PalworldServerExe");
+
 if (string.IsNullOrEmpty(palworldServerExePath))
     throw new InvalidOperationException("Server exe is required");
 
+var launchArgs = builder.Configuration.GetValue<string>("LaunchArguments");
 builder.Services.AddTransient<IPalworldServerExecutable, PalworldServerExecutable>(sp =>
-    new PalworldServerExecutable(sp.GetRequiredService<ILogger<PalworldServerExecutable>>(), palworldServerExePath));
+    new PalworldServerExecutable(sp.GetRequiredService<ILogger<PalworldServerExecutable>>(), palworldServerExePath, launchArgs));
 
 builder.Services.AddScoped<IPalworldRCONConnection>(sp =>
     new PalworldRconConnection(rconPort, adminPassword, sp.GetRequiredService<ILogger<PalworldRconConnection>>()));
