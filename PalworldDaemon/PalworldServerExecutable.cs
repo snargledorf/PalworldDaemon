@@ -2,7 +2,10 @@
 
 namespace PalworldDaemon;
 
-class PalworldServerExecutable(ILogger<PalworldServerExecutable> logger, string palworldServerExePath) : IPalworldServerExecutable
+class PalworldServerExecutable(
+    ILogger<PalworldServerExecutable> logger,
+    string palworldServerExePath,
+    string? launchArgs) : IPalworldServerExecutable
 {
     public void EnsureRunning()
     {
@@ -26,7 +29,8 @@ class PalworldServerExecutable(ILogger<PalworldServerExecutable> logger, string 
         var processStartInfo = new ProcessStartInfo(palworldServerExePath)
         {
             CreateNoWindow = true,
-            UseShellExecute = false
+            UseShellExecute = false,
+            Arguments = launchArgs ?? ""
         };
 
         serverProcess.StartInfo = processStartInfo;
